@@ -139,7 +139,30 @@ bash scripts/run_oracle_class_routing.sh /path/to/R-LoRA 0 e1
 bash scripts/run_oracle_class_routing.sh /path/to/R-LoRA 0 all
 ~~~
 
-결과는 기본적으로 `R-LoRA/results/oracle_class_routing/`에 저장됩니다. `PYTHON_BIN`과 `RESULT_DIR` 환경변수로 실행 환경과 출력 경로를 바꿀 수 있습니다.
+결과는 이 저장소의 `experiments/runs/` 아래에 실험별 폴더로 저장됩니다.
+`PYTHON_BIN`과 `EXPERIMENT_RUNS_DIR` 환경변수로 실행 환경과 출력 경로를
+바꿀 수 있습니다.
+
+## 실험 기록 자동 저장
+
+각 실행 결과는 다음 9개 항목으로만 저장됩니다.
+
+```text
+experiments/runs/YYYYMMDD_HHMMSS_<experiment>_seed1993/
+├── 1_config.json
+├── 2_command.sh
+├── 3_git_commit_sha.txt
+├── 4_metrics.json
+├── 5_expert_assignments.csv
+├── 6_class_coverage_and_accuracy.csv
+├── 7_full.log
+├── 8_graphs/
+└── 9_summary.md
+```
+
+`4_metrics.json`, 두 CSV, 그래프와 `9_summary.md`의 수치 부분은 로그에서
+자동 생성됩니다. Dataset, checkpoint와 pretrained weight는 저장하지 않습니다.
+`9_summary.md`의 결과 해석과 다음 실험 결정만 최종 결과에 맞게 작성합니다.
 
 ## 10. 재현 확인 기준
 
