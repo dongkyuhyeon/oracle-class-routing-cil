@@ -4,4 +4,4 @@ __pycache__/
 results/
 logs/
 *.log
-
+!experiments/runs/**/7_full.log
