@@ -1,0 +1,71 @@
+--- a/LAMDA-PILOT/models/crcl.py
++++ b/LAMDA-PILOT/models/crcl.py
+@@
+ from utils.inc_net import CRCLNet
+ from utils.toolkit import tensor2numpy
++from utils.semantic_oracle import SemanticOracleRouter
+ from backbone.vit_lora_crcl import LoRAQKV, set_lora_indices
+@@
+         self.top_k_loras = args.get("top_k_loras", 1)
++        self.routing_mode = args.get("routing_mode", "learned")
++
++        valid_routing_modes = {"learned", "oracle_class", "semantic_oracle"}
++        if self.routing_mode not in valid_routing_modes:
++            raise ValueError(
++                "routing_mode must be one of {}, got '{}'".format(
++                    sorted(valid_routing_modes), self.routing_mode
++                )
++            )
++
++        self.semantic_oracle_router = None
++        if self.routing_mode == "semantic_oracle":
++            if self.top_k_loras != 1:
++                raise ValueError(
++                    "semantic_oracle supports only top_k_loras=1 for this experiment."
++                )
++            mapping_path = args.get("semantic_mapping_path")
++            if not mapping_path:
++                raise ValueError(
++                    "routing_mode='semantic_oracle' requires semantic_mapping_path."
++                )
++            self.semantic_oracle_router = SemanticOracleRouter(
++                mapping_path=mapping_path,
++                num_loras=self._network.num_loras,
++                expected_num_classes=200,
++            )
++
++    def _route_topk(self, net, inputs, targets):
++        """Dispatch routing without changing learned routing behavior."""
++        if self.routing_mode == "semantic_oracle":
++            return self.semantic_oracle_router.route(targets.to(self._device))
++
++        if self.routing_mode == "oracle_class":
++            from utils.oracle_routing import oracle_class_topk
++            return oracle_class_topk(
++                targets.to(self._device), net.num_loras, self.top_k_loras
++            )
++
++        frozen_feats = net.extract_vector(inputs)
++        return net.route_topk(frozen_feats, self.top_k_loras)
+@@
+-            for sample_indices, inputs, _ in self.train_loader:
++            for sample_indices, inputs, targets in self.train_loader:
+                 inputs = inputs.to(self._device)
+-                feats = net.extract_vector(inputs)
+-                topk_idx = net.route_topk(feats, self.top_k_loras)
++                topk_idx = self._route_topk(net, inputs, targets)
+@@
+-                for _, inputs, _ in loader:
++                for _, inputs, targets in loader:
+                     inputs = inputs.to(self._device)
+-                    frozen = net.extract_vector(inputs)
+-                    topk = net.route_topk(frozen, self.top_k_loras)
++                    topk = self._route_topk(net, inputs, targets)
+@@
+-                frozen_feats = net.extract_vector(inputs)
+-                topk_indices = net.route_topk(frozen_feats, self.top_k_loras)
++                topk_indices = self._route_topk(net, inputs, targets)
+@@
+-                frozen_feats = net.extract_vector(inputs)
+-                topk_indices = net.route_topk(frozen_feats, self.top_k_loras)
++                topk_indices = self._route_topk(net, inputs, targets)
