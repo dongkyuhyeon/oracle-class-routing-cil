@@ -44,6 +44,8 @@ ImageNet-A class-incremental learning에서 기존 feature/codebook routing이 �
 
 Backend, backbone, optimizer와 학습 조건은 고정하고 routing 방식과 top-K만 바꿉니다.
 
+> **재현 주의:** 원본 R-LoRA main에는 ImageNet-A 전용 K=5 JSON이 커밋되어 있지 않습니다. 이 저장소의 config는 Notion에 기록된 ImageNet-A T=20 조건과 기존 `crcl_topk_sdlora_noca_n5.json`의 학습 설정을 결합해 작성했습니다. 따라서 E1이 기존 Final Top-1 50.03%를 재현하는지 확인한 뒤 E2–E4를 해석해야 합니다.
+
 ## 4. 실험군
 
 | ID | K | Routing | Top-K | 목적 |
@@ -178,4 +180,3 @@ Oracle이 K=1을 안정적으로 넘을 때 Neural Collapse 또는 class-aware r
 ## 공개 범위
 
 이 저장소는 실험 재현과 연구 논의를 위해 Public으로 운영됩니다. 데이터셋 자체와 pretrained model weight는 포함하지 않습니다.
-
