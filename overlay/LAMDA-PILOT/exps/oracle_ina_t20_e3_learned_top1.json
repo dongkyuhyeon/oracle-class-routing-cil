@@ -1,0 +1,33 @@
+{
+  "prefix": "oracle_ina_t20_e3_learned_top1",
+  "dataset": "imageneta",
+  "memory_size": 0,
+  "memory_per_class": 0,
+  "fixed_memory": false,
+  "shuffle": true,
+  "init_cls": 10,
+  "increment": 10,
+  "model_name": "crcl",
+  "backbone_type": "pretrained_vit_b16_224_in21k",
+  "device": [
+    "0"
+  ],
+  "seed": [
+    1993
+  ],
+  "lora_rank": 8,
+  "backend": "sd-lora",
+  "init_lr": 0.001,
+  "weight_decay": 0.0005,
+  "min_lr": 0,
+  "init_epochs": 20,
+  "ca_epochs": 0,
+  "ca_lr": 0.005,
+  "num_sampled_per_cls": 256,
+  "orth_lambda": 0.1,
+  "batch_size": 64,
+  "num_loras": 5,
+  "top_k_loras": 1,
+  "routing_mode": "learned"
+}
+
